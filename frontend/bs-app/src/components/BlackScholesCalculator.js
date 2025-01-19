@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import api from '../api'; // Import the configured API instance
+import api from '../api';
+import HistoryTable from './HistoryTable';
 
 const BlackScholesCalculator = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,7 @@ const BlackScholesCalculator = () => {
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showHistory, setShowHistory] = useState(false); // State to toggle history view
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -67,8 +69,27 @@ const BlackScholesCalculator = () => {
     }
   };
 
+  const handleViewHistory = () => {
+    setShowHistory(true); // Switch to HistoryTable view
+  };
+
+  const handleBackToCalculator = () => {
+    setShowHistory(false); // Switch back to calculator view
+  };
+
+  if (showHistory) {
+    return <HistoryTable onBack={handleBackToCalculator} />;
+  }
+
   return (
     <div className="container mt-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2>Black-Scholes Calculator</h2>
+        <button className="btn btn-secondary" onClick={handleViewHistory}>
+          View History
+        </button>
+      </div>
+
       <form onSubmit={handleFormSubmit}>
         <div className="row">
           <div className="col-md-6">

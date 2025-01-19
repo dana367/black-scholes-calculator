@@ -46,6 +46,24 @@ class BlackScholesOutput(BaseModel):
         from_attributes = True
 
 
+class BlackScholesRecord(BaseModel):
+    """Schema for a complete Black-Scholes record, including input and output details."""
+
+    id: int
+    stock_price: float
+    strike_price: float
+    time_to_maturity: float
+    risk_free_rate: float
+    dividend_yield: float
+    volatility: float
+    call_option_price: float
+    put_option_price: float
+    timestamp: datetime | None = None
+
+    class Config:
+        from_attributes = True
+
+
 def get_db():
     db = SessionLocal()
     try:
@@ -98,6 +116,18 @@ async def calculate(input_data: BlackScholesInput, db: db_dependency):
 
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=f"Invalid input: {ve}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
+
+@app.get("/calculations", response_model=List[BlackScholesRecord])
+async def get_calculations(db: db_dependency):
+    """
+    Retrieve all saved Black-Scholes calculations with full input and output details.
+    """
+    try:
+        calculations = db.query(Calculation).all()
+        return calculations
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
