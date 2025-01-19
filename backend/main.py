@@ -47,7 +47,7 @@ class BlackScholesOutput(BaseModel):
 
 
 class BlackScholesRecord(BaseModel):
-    """Schema for a complete Black-Scholes record, including input and output details."""
+    """Schema for a Black-Scholes history records"""
 
     id: int
     stock_price: float
@@ -80,7 +80,6 @@ models.Base.metadata.create_all(bind=engine)
 @app.post("/calculate", response_model=BlackScholesOutput)
 async def calculate(input_data: BlackScholesInput, db: db_dependency):
     try:
-        # Calculate option prices
         results = calculate_black_scholes(
             S=input_data.stock_price,
             X=input_data.strike_price,
@@ -90,7 +89,6 @@ async def calculate(input_data: BlackScholesInput, db: db_dependency):
             v=input_data.volatility,
         )
 
-        # Create a new calculation record
         calculation = Calculation(
             stock_price=input_data.stock_price,
             strike_price=input_data.strike_price,
@@ -123,7 +121,7 @@ async def calculate(input_data: BlackScholesInput, db: db_dependency):
 @app.get("/calculations", response_model=List[BlackScholesRecord])
 async def get_calculations(db: db_dependency):
     """
-    Retrieve all saved Black-Scholes calculations with full input and output details.
+    Retrieve all saved Black-Scholes calculations.
     """
     try:
         calculations = db.query(Calculation).all()

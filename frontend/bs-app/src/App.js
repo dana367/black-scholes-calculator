@@ -1,5 +1,5 @@
 import React from 'react';
-import BlackScholesCalculator from './components/BlackScholesCalculator'; // Import the component
+import BlackScholesCalculator from './components/BlackScholesCalculator'; 
 
 const App = () => {
   return (
@@ -12,7 +12,6 @@ const App = () => {
         </div>
       </nav>
 
-      {/* Render the Black-Scholes Calculator */}
       <BlackScholesCalculator />
     </div>
   );

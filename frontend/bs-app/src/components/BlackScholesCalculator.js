@@ -14,7 +14,7 @@ const BlackScholesCalculator = () => {
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showHistory, setShowHistory] = useState(false); // State to toggle history view
+  const [showHistory, setShowHistory] = useState(false); 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -70,11 +70,11 @@ const BlackScholesCalculator = () => {
   };
 
   const handleViewHistory = () => {
-    setShowHistory(true); // Switch to HistoryTable view
+    setShowHistory(true); 
   };
 
   const handleBackToCalculator = () => {
-    setShowHistory(false); // Switch back to calculator view
+    setShowHistory(false); 
   };
 
   if (showHistory) {
