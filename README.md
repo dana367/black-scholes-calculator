@@ -1,3 +1,8 @@
+![image](https://github.com/user-attachments/assets/0fd24e06-fbe1-409c-b070-30fac379584f)
+
+![image](https://github.com/user-attachments/assets/25350017-68e6-4829-9942-a549b2616322)
+
+
 # Black-Scholes Option Pricing Calculator
 
 This project is a full-stack application for calculating option prices using the Black-Scholes model.
