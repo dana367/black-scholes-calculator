@@ -1,0 +1,104 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# Distribution / packaging
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Logs
+*.log
+*.out
+*.err
+logs/
+
+# Environment variables
+.env
+.env.*
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Pytest
+.cache/
+.pytest_cache/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+
+# Type checkers
+.pytype/
+
+# FastAPI auto-generated files (e.g., OpenAPI docs if written to disk)
+docs/
+openapi.json
+schema.json
+
+# Docker
+*.pid
+*.log
+docker-compose.override.yml
+
+# Database
+*.sqlite3
+db.sqlite3
+
+# Static files and uploads
+static/
+media/
+uploads/
+
+# Dependencies
+pip-log.txt
+pip-delete-this-directory.txt
+
+# PDM or Poetry
+.pdm.toml
+poetry.lock
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Unix
+.nfs*
+
+# Testing-specific files
+test-results/
+
+# Miscellaneous
+*.bak
+*.tmp
+*.old
+*.orig
+
+certs/

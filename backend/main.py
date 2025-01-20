@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import Annotated, List
 
+import auth
 import models
+from auth import get_current_user
 from database import SessionLocal, engine
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,6 +13,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 app = FastAPI()
+app.include_router(auth.router)
 
 origins = ["http://localhost:3000"]
 
@@ -73,6 +76,7 @@ def get_db():
 
 
 db_dependency = Annotated[Session, Depends(get_db)]
+user_dependency = Annotated[dict, Depends(get_current_user)]
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -128,6 +132,13 @@ async def get_calculations(db: db_dependency):
         return calculations
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
+
+@app.get("/", status_code=200)
+async def user(user: user_dependency, db: db_dependency):
+    if user is None:
+        raise HTTPException(status_code=401, detail="Authentication Failed")
+    return {"User": user}
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 from database import Base
-from sqlalchemy import Column, DateTime, Float, Integer, func
+from sqlalchemy import Column, DateTime, Float, Integer, String, func
 
 
 class Calculation(Base):
@@ -15,3 +15,11 @@ class Calculation(Base):
     call_option_price = Column(Float, nullable=False)
     put_option_price = Column(Float, nullable=False)
     timestamp = Column(DateTime, server_default=func.now(), nullable=False)
+
+
+class Users(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
