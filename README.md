@@ -1,8 +1,14 @@
 ![image](https://github.com/user-attachments/assets/707479b1-e131-4ca2-a422-e9b209b14e5e)
 
+
+
 ![image](https://github.com/user-attachments/assets/f515872d-0efc-4884-a050-3373e08c0a06)
 
+
+
 ![image](https://github.com/user-attachments/assets/07f75938-bfd0-435b-aa28-bb8cf07d562f)
+
+
 
 
 # Black-Scholes Option Pricing Calculator
