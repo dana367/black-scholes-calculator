@@ -81,7 +81,9 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 models.Base.metadata.create_all(bind=engine)
 
 
-@app.post("/calculate", response_model=BlackScholesOutput)
+@app.post(
+    "/calculate", response_model=BlackScholesOutput, summary="Calculate options price"
+)
 async def calculate(input_data: BlackScholesInput, db: db_dependency):
     try:
         results = calculate_black_scholes(
@@ -122,7 +124,11 @@ async def calculate(input_data: BlackScholesInput, db: db_dependency):
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 
-@app.get("/calculations", response_model=List[BlackScholesRecord])
+@app.get(
+    "/calculations",
+    response_model=List[BlackScholesRecord],
+    summary="Get all saved calculations",
+)
 async def get_calculations(db: db_dependency):
     """
     Retrieve all saved Black-Scholes calculations.
