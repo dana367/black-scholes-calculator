@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from typing import Annotated
 
@@ -9,12 +10,15 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from models import Users
 from passlib.context import CryptContext
+from pydantic import ValidationError
 
 # Import schemas
 from schemas.auth_schema import TokenPayload, TokenSchema, UserAuth
 from schemas.user_schema import CreateUserRequest, UserResponse
 from sqlalchemy.orm import Session
 from starlette import status
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -77,19 +81,17 @@ def create_access_token(username: str, user_id: int, expires_delta: timedelta):
 
 
 def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
+
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
-        token_data = TokenPayload(**payload)
+        return {"username": payload["sub"], "id": payload["id"]}
 
-        if token_data.sub is None or token_data.id is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not validate user.",
-            )
-        return {"username": token_data.sub, "id": token_data.id}
-    except JWTError:
+    except Exception as e:
+        logger.error(f"Error getting current user: {str(e)}")
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate user"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
         )
