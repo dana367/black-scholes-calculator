@@ -3,3 +3,6 @@ uvicorn
 pydantic
 python-dotenv
 scipy
+sqlalchemy
+python-jose
+pytest

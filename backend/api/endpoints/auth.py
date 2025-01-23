@@ -1,15 +1,18 @@
 from datetime import datetime, timedelta
 from typing import Annotated
 
-from config import settings
-from database import SessionLocal
+# from api.endpoints.auth import get_current_user
+from core.config import settings
+from db.session import SessionLocal, get_db
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from flask_jwt_extended import create_access_token
 from jose import JWTError, jwt
 from models import Users
 from passlib.context import CryptContext
-from pydantic import BaseModel
+
+# Import schemas
+from schemas.auth_schema import TokenPayload, TokenSchema, UserAuth
+from schemas.user_schema import CreateUserRequest, UserResponse
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -18,44 +21,30 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 
-
-class CreateUserRequest(BaseModel):
-    username: str
-    password: str
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
 db_dependency = Annotated[Session, Depends(get_db)]
+# user_dependency = Annotated[dict, Depends(get_current_user)]
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_user(db: db_dependency, create_user_request: CreateUserRequest):
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=UserResponse)
+async def create_user(db: db_dependency, user_create: CreateUserRequest):
     create_user_model = Users(
-        username=create_user_request.username,
-        hashed_password=bcrypt_context.hash(create_user_request.password),
+        username=user_create.username,
+        hashed_password=bcrypt_context.hash(user_create.password),
     )
     db.add(create_user_model)
     db.commit()
+    db.refresh(create_user_model)  # To fetch the generated ID
+
+    return create_user_model
 
 
-@router.post("/token", response_model=Token)
+@router.post("/token", response_model=TokenSchema)
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: db_dependency,
 ):
-    user = authenticate_user(form_data.username, form_data.password, db)
+    user_auth = UserAuth(username=form_data.username, password=form_data.password)
+    user = authenticate_user(user_auth, db)
 
     if not user:
         raise HTTPException(
@@ -66,20 +55,25 @@ async def login_for_access_token(
     return {"access_token": token, "token_type": "bearer"}
 
 
-def authenticate_user(username: str, password: str, db):
-    user = db.query(Users).filter(Users.username == username).first()
-    if not user:
+def authenticate_user(user_auth: UserAuth, db: Session):
+    user = db.query(Users).filter(Users.username == user_auth.username).first()
+    if not user or not bcrypt_context.verify(user_auth.password, user.hashed_password):
         return False
-    if not bcrypt_context.verify(password, user.hashed_password):
-        return False
+
     return user
 
 
 def create_access_token(username: str, user_id: int, expires_delta: timedelta):
-    encode = {"sub": username, "id": user_id}
-    expires = datetime.utcnow() + expires_delta
-    encode.update({"exp": expires})
-    return jwt.encode(encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    payload = TokenPayload(
+        sub=username,
+        id=user_id,
+        exp=int((datetime.utcnow() + expires_delta).timestamp()),
+    )
+    return jwt.encode(
+        payload.dict(exclude_none=True),
+        settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM,
+    )
 
 
 def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
@@ -87,14 +81,14 @@ def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
-        username: str = payload.get("sub")
-        user_id: int = payload.get("id")
-        if username is None or user_id is None:
+        token_data = TokenPayload(**payload)
+
+        if token_data.sub is None or token_data.id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Could not validate user.",
             )
-        return {"username": username, "id": user_id}
+        return {"username": token_data.sub, "id": token_data.id}
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate user"

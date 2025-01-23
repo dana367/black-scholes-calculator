@@ -48,7 +48,7 @@ const BlackScholesCalculator = () => {
         throw new Error('All values must be positive numbers.');
       }
 
-      const response = await api.post('/calculate', requestData);
+      const response = await api.post('/black-scholes/calculate', requestData);
 
       if (!response.data || response.status >= 400) {
         throw new Error(response.data?.detail || 'Server error occurred.');

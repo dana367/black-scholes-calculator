@@ -1,4 +1,4 @@
-from database import Base
+from db.session import Base
 from sqlalchemy import Column, DateTime, Float, Integer, String, func
 
 

@@ -8,7 +8,7 @@ const HistoryTable = ({ onBack }) => {
   useEffect(() => {
     const fetchCalculations = async () => {
       try {
-        const response = await api.get('/calculations');
+        const response = await api.get('/black-scholes/calculations');
         setCalculations(response.data);
       } catch (err) {
         setError('Failed to fetch calculations. Please try again later.');
